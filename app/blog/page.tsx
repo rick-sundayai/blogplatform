@@ -67,8 +67,9 @@ export default async function BlogIndex({
 }: {
   searchParams: { [key: string]: string | string[] | undefined };
 }) {
-  // Parse category slugs from search params - ensure we're handling it safely
-  const categoriesParam = searchParams.categories;
+  // Parse category slugs from search params - ensure we're handling it properly
+  // In Next.js, we need to handle searchParams safely
+  const categoriesParam = searchParams?.categories || '';
   const categoryFilter = typeof categoriesParam === 'string' ? categoriesParam.split(',') : undefined;
   
   // Fetch all categories for the filter

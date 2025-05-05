@@ -2,21 +2,25 @@ import { createClient } from '@supabase/supabase-js';
 import { Database } from './database.types';
 
 // These environment variables are set in .env.local
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
 
-// Check if the environment variables are set
-if (!supabaseUrl || !supabaseAnonKey) {
-  throw new Error('Missing Supabase environment variables. Please set NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY in .env.local');
-}
+// Create a more robust singleton pattern for the Supabase client
+// that works properly in both server and client environments
+let supabaseInstance: ReturnType<typeof createClient<Database>>;
 
-// Create a singleton Supabase client
-let supabaseInstance: ReturnType<typeof createClient<Database>> | null = null;
-
+// This approach prevents multiple instances in browser environments
 export const getSupabase = () => {
-  if (supabaseInstance) return supabaseInstance;
+  if (typeof window === 'undefined') {
+    // Server-side: Always create a new instance (won't be shared between requests)
+    return createClient<Database>(supabaseUrl, supabaseAnonKey);
+  }
   
-  supabaseInstance = createClient<Database>(supabaseUrl, supabaseAnonKey);
+  // Client-side: Create the instance once and reuse it
+  if (!supabaseInstance) {
+    supabaseInstance = createClient<Database>(supabaseUrl, supabaseAnonKey);
+  }
+  
   return supabaseInstance;
 };
 

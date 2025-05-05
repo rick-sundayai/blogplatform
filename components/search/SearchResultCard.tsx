@@ -84,6 +84,7 @@ const SearchResultCard: FC<SearchResultCardProps> = ({
                 alt={author.name}
                 fill
                 className="object-cover"
+                sizes="32px"
               />
             </div>
             <span className="text-sm font-medium">{author.name}</span>
