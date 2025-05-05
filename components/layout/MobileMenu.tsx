@@ -56,6 +56,15 @@ const MobileMenu: FC<MobileMenuProps> = ({ isOpen, onClose }) => {
             </li>
             <li>
               <Link 
+                href="/search" 
+                className="block py-2 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors"
+                onClick={onClose}
+              >
+                Search
+              </Link>
+            </li>
+            <li>
+              <Link 
                 href="/about" 
                 className="block py-2 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors"
                 onClick={onClose}
