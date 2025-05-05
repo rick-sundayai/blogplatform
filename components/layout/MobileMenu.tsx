@@ -1,7 +1,9 @@
 'use client';
 
-import { FC } from 'react';
+import { FC, useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { supabase } from '../../lib/supabase/client';
 
 interface MobileMenuProps {
   isOpen: boolean;
@@ -9,6 +11,30 @@ interface MobileMenuProps {
 }
 
 const MobileMenu: FC<MobileMenuProps> = ({ isOpen, onClose }) => {
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const router = useRouter();
+  
+  // Using the singleton Supabase client imported from lib/supabase/client
+  
+  useEffect(() => {
+    // Check if user is logged in
+    const checkSession = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      setIsLoggedIn(!!session);
+    };
+    
+    if (isOpen) {
+      checkSession();
+    }
+  }, [isOpen]); // Remove supabase.auth from dependency array as it's a stable reference
+  
+  const handleSignOut = async () => {
+    await supabase.auth.signOut();
+    router.push('/');
+    router.refresh();
+    onClose();
+  };
+  
   if (!isOpen) return null;
   
   return (
@@ -75,13 +101,22 @@ const MobileMenu: FC<MobileMenuProps> = ({ isOpen, onClose }) => {
           </ul>
         </nav>
         <div className="p-4 border-t border-gray-200 dark:border-gray-800">
-          <Link 
-            href="/auth/login"
-            className="block w-full text-center px-4 py-2 rounded-md bg-indigo-600 text-white hover:bg-indigo-700 transition-colors"
-            onClick={onClose}
-          >
-            Sign In
-          </Link>
+          {isLoggedIn ? (
+            <button
+              onClick={handleSignOut}
+              className="block w-full text-center px-4 py-2 rounded-md bg-red-600 text-white hover:bg-red-700 transition-colors"
+            >
+              Log Out
+            </button>
+          ) : (
+            <Link 
+              href="/auth/login"
+              className="block w-full text-center px-4 py-2 rounded-md bg-indigo-600 text-white hover:bg-indigo-700 transition-colors"
+              onClick={onClose}
+            >
+              Log In
+            </Link>
+          )}
         </div>
       </div>
     </div>

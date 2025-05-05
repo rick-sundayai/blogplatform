@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { z } from 'zod';
-import { createClient } from '@supabase/supabase-js';
+import { supabase } from '../../../../lib/supabase/client';
 import { AuthorData } from '../../../../lib/supabase/api';
 
 // Define the Author schema using Zod for validation
@@ -33,11 +33,7 @@ export default function AuthorForm({ authorId, initialData }: AuthorFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [previewImage, setPreviewImage] = useState<string>(initialData?.avatar_url || '');
   
-  // Initialize Supabase client
-  const supabase = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL || '',
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ''
-  );
+  // Using the singleton Supabase client imported from lib/supabase/client
   
   // Generate slug from name
   const generateSlug = (name: string) => {

@@ -55,7 +55,9 @@ export async function generateMetadata({
 }: { 
   params: { slug: string } 
 }): Promise<Metadata> {
-  const category = await getCategoryBySlug(params.slug);
+  // In Next.js 14+, we need to await the params object before accessing its properties
+  const resolvedParams = await params;
+  const category = await getCategoryBySlug(resolvedParams.slug);
   
   if (!category) {
     return {
@@ -99,8 +101,11 @@ export default async function CategoryPage({
 }: { 
   params: { slug: string } 
 }) {
+  // In Next.js 14+, we need to await the params object before accessing its properties
+  const resolvedParams = await params;
+  
   // Fetch the category
-  const category: Category | null = await getCategoryBySlug(params.slug);
+  const category: Category | null = await getCategoryBySlug(resolvedParams.slug);
   
   // If the category doesn't exist, show a 404 page
   if (!category) {
@@ -108,7 +113,7 @@ export default async function CategoryPage({
   }
   
   // Fetch posts for this category
-  const posts = await getPostsByCategory(params.slug);
+  const posts = await getPostsByCategory(resolvedParams.slug);
   
   // Fetch related categories
   const relatedCategories = await getRelatedCategories(category.id, 3);

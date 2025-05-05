@@ -1,10 +1,10 @@
 "use client";
 
 import { useState } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { z } from 'zod';
-import { createClient } from '@supabase/supabase-js';
+import { supabase } from '../../lib/supabase/client';
 
 // Define form schemas using Zod
 const loginSchema = z.object({
@@ -40,8 +40,7 @@ type AuthFormProps = {
 
 export default function AuthForm({ type }: AuthFormProps) {
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const callbackUrl = searchParams.get('callbackUrl') || '/';
+  // We always redirect to the admin dashboard after login
   
   // Form state
   const [formData, setFormData] = useState({
@@ -56,11 +55,7 @@ export default function AuthForm({ type }: AuthFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
   
-  // Initialize Supabase client
-  const supabase = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL || '',
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ''
-  );
+  // Using the singleton Supabase client imported from lib/supabase/client
   
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -111,15 +106,44 @@ export default function AuthForm({ type }: AuthFormProps) {
     try {
       if (type === 'login') {
         // Handle login
-        const { error } = await supabase.auth.signInWithPassword({
+        console.log('Login attempt:', { email: formData.email });
+        
+        const { data, error } = await supabase.auth.signInWithPassword({
           email: formData.email,
           password: formData.password,
         });
         
-        if (error) throw error;
+        if (error) {
+          console.error('Login error:', error);
+          throw error;
+        }
         
-        // Redirect to callback URL or dashboard
-        router.push(callbackUrl);
+        // Log successful authentication details
+        console.log('Authentication successful:', {
+          user: {
+            id: data.user?.id,
+            email: data.user?.email,
+            role: data.user?.role,
+            metadata: data.user?.user_metadata,
+          },
+          session: {
+            expires_at: data.session?.expires_at,
+            token_type: data.session?.token_type,
+          }
+        });
+        
+        // Get and log user roles/claims
+        const { data: { user } } = await supabase.auth.getUser();
+        console.log('User details:', {
+          id: user?.id,
+          email: user?.email,
+          app_metadata: user?.app_metadata,
+          user_metadata: user?.user_metadata,
+        });
+        
+        // Redirect to admin dashboard after successful login
+        console.log('Redirecting to dashboard...');
+        router.push('/admin/dashboard');
         router.refresh();
       } else if (type === 'register') {
         // Handle registration
@@ -310,7 +334,7 @@ export default function AuthForm({ type }: AuthFormProps) {
               value={formData.password}
               onChange={handleChange}
               className={`w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 ${errors.password ? 'border-red-500' : 'border-gray-300 dark:border-gray-600'}`}
-              placeholder="u2022u2022u2022u2022u2022u2022u2022u2022"
+              placeholder="Enter your password"
             />
             {errors.password && <p className="mt-1 text-sm text-red-600">{errors.password}</p>}
           </div>
@@ -329,7 +353,7 @@ export default function AuthForm({ type }: AuthFormProps) {
               value={formData.confirmPassword}
               onChange={handleChange}
               className={`w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 ${errors.confirmPassword ? 'border-red-500' : 'border-gray-300 dark:border-gray-600'}`}
-              placeholder="u2022u2022u2022u2022u2022u2022u2022u2022"
+              placeholder="Enter your password"
             />
             {errors.confirmPassword && <p className="mt-1 text-sm text-red-600">{errors.confirmPassword}</p>}
           </div>

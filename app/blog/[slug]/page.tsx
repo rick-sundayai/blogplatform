@@ -35,7 +35,9 @@ export async function generateMetadata({
 }: { 
   params: { slug: string } 
 }): Promise<Metadata> {
-  const post = await getPostBySlug(params.slug);
+  // In Next.js 14+, we need to await the params object before accessing its properties
+  const resolvedParams = await params;
+  const post = await getPostBySlug(resolvedParams.slug);
   
   if (!post) {
     return {
@@ -112,7 +114,9 @@ export default async function BlogPost({
 }: { 
   params: { slug: string } 
 }) {
-  const post = await getPostBySlug(params.slug);
+  // In Next.js 14+, we need to await the params object before accessing its properties
+  const resolvedParams = await params;
+  const post = await getPostBySlug(resolvedParams.slug);
   
   // If the post doesn't exist, show a 404 page
   if (!post) {

@@ -57,7 +57,9 @@ export async function generateMetadata({
 }: { 
   params: { slug: string } 
 }): Promise<Metadata> {
-  const author = await getAuthorBySlug(params.slug);
+  // In Next.js 14+, we need to await the params object before accessing its properties
+  const resolvedParams = await params;
+  const author = await getAuthorBySlug(resolvedParams.slug);
   
   if (!author) {
     return {
@@ -101,8 +103,11 @@ export default async function AuthorPage({
 }: { 
   params: { slug: string } 
 }) {
+  // In Next.js 14+, we need to await the params object before accessing its properties
+  const resolvedParams = await params;
+  
   // Fetch the author
-  const author: Author | null = await getAuthorBySlug(params.slug);
+  const author: Author | null = await getAuthorBySlug(resolvedParams.slug);
   
   // If the author doesn't exist, show a 404 page
   if (!author) {

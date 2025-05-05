@@ -58,8 +58,14 @@ export async function middleware(request: NextRequest) {
   // Refresh session if expired
   const { data: { session } } = await supabase.auth.getSession();
 
-  // Check if the request is for an admin route
+  // Check if the request is for an admin route or auth route
   const isAdminRoute = request.nextUrl.pathname.startsWith('/admin');
+  const isAuthRoute = request.nextUrl.pathname.startsWith('/auth');
+  
+  // Skip auth routes - we don't want to redirect away from login pages
+  if (isAuthRoute) {
+    return response;
+  }
 
   // If it's an admin route and the user is not authenticated, redirect to login
   if (isAdminRoute && !session) {
@@ -93,9 +99,10 @@ export async function middleware(request: NextRequest) {
   return response;
 }
 
-// Only run middleware on auth-related routes
+// Configure middleware to run on specific routes
 export const config = {
   matcher: [
+    // Apply to all routes except static files
     '/((?!_next/static|_next/image|favicon.ico|.*\.svg).*)',
   ],
 };

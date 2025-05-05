@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { z } from 'zod';
-import { createClient } from '@supabase/supabase-js';
+import { supabase } from '../../../../lib/supabase/client';
 import { CategoryData } from '../../../../lib/supabase/api';
 
 // Define the Category schema using Zod for validation
@@ -29,11 +29,7 @@ export default function CategoryForm({ categoryId, initialData }: CategoryFormPr
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   
-  // Initialize Supabase client
-  const supabase = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL || '',
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ''
-  );
+  // Using the singleton Supabase client imported from lib/supabase/client
   
   // Generate slug from name
   const generateSlug = (name: string) => {

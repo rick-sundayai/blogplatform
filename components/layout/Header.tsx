@@ -1,13 +1,49 @@
 'use client';
 
 import Link from 'next/link';
-import { FC, useState } from 'react';
+import { FC, useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { supabase } from '../../lib/supabase/client';
 import ThemeToggle from '../common/ThemeToggle';
 import SearchBar from '../common/SearchBar';
 import MobileMenu from './MobileMenu';
 
 const Header: FC = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const router = useRouter();
+  
+  // Using the singleton Supabase client imported from lib/supabase/client
+  
+  useEffect(() => {
+    // Check if user is logged in
+    const checkSession = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      setIsLoggedIn(!!session);
+    };
+    
+    checkSession();
+    
+    // Set up auth state listener
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
+      if (event === 'SIGNED_IN') {
+        setIsLoggedIn(true);
+      } else if (event === 'SIGNED_OUT') {
+        setIsLoggedIn(false);
+      }
+    });
+    
+    // Cleanup subscription
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, []); // Remove supabase.auth from dependency array as it's a stable reference
+  
+  const handleSignOut = async () => {
+    await supabase.auth.signOut();
+    router.push('/');
+    router.refresh();
+  };
   return (
     <header className="py-6 border-b border-gray-100 dark:border-gray-800">
       <div className="container mx-auto px-4 flex justify-between items-center">
@@ -33,9 +69,18 @@ const Header: FC = () => {
             <SearchBar />
           </div>
           <ThemeToggle />
-          <Link href="/auth/login" className="hidden md:block px-4 py-2 rounded-md bg-indigo-600 text-white hover:bg-indigo-700 transition-colors">
-            Sign In
-          </Link>
+          {isLoggedIn ? (
+            <button
+              onClick={handleSignOut}
+              className="hidden md:block px-4 py-2 rounded-md bg-red-600 text-white hover:bg-red-700 transition-colors"
+            >
+              Log Out
+            </button>
+          ) : (
+            <Link href="/auth/login" className="hidden md:block px-4 py-2 rounded-md bg-indigo-600 text-white hover:bg-indigo-700 transition-colors">
+              Log In
+            </Link>
+          )}
           <button
             className="md:hidden p-2 rounded-full bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
             onClick={() => setIsMobileMenuOpen(true)}

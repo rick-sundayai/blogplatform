@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { z } from 'zod';
-import { createClient } from '@supabase/supabase-js';
+import { supabase } from '../../../../lib/supabase/client';
 import { getCategories, getAuthors } from '../../../../lib/supabase/api';
 
 // Define the Post schema using Zod for validation
@@ -46,11 +46,7 @@ export default function PostForm({ postId, initialData }: PostFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [previewImage, setPreviewImage] = useState<string>('');
   
-  // Initialize Supabase client
-  const supabase = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL || '',
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ''
-  );
+  // Using the singleton Supabase client imported from lib/supabase/client
   
   useEffect(() => {
     const fetchData = async () => {
