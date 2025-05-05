@@ -7,6 +7,7 @@ import { FC } from 'react';
 interface PostCardProps {
   id: string;
   title: string;
+  slug: string; // Add slug property for URL routing
   excerpt: string;
   coverImage: string;
   date: string;
@@ -19,8 +20,9 @@ interface PostCardProps {
 }
 
 const PostCard: FC<PostCardProps> = ({
-  id,
+  // id is kept in props but not used directly in the component
   title,
+  slug,
   excerpt,
   coverImage,
   date,
@@ -30,7 +32,7 @@ const PostCard: FC<PostCardProps> = ({
 }) => {
   return (
     <article className="bg-white dark:bg-gray-900 rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow duration-300">
-      <Link href={`/blog/${id}`} className="block">
+      <Link href={`/blog/${slug}`} className="block">
         <div className="relative h-48 w-full">
           <Image
             src={coverImage}
@@ -51,7 +53,7 @@ const PostCard: FC<PostCardProps> = ({
           </Link>
           <span className="text-xs text-gray-500 dark:text-gray-400">{readTime}</span>
         </div>
-        <Link href={`/blog/${id}`} className="block">
+        <Link href={`/blog/${slug}`} className="block">
           <h2 className="text-xl font-bold mb-2 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">
             {title}
           </h2>

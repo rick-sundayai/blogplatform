@@ -38,7 +38,9 @@ const CategoryCard: FC<CategoryCardProps> = ({
       </div>
       <div className="p-4">
         <p className="text-gray-600 dark:text-gray-400 text-sm mb-2 line-clamp-2">{description}</p>
-        <span className="text-xs text-indigo-600 dark:text-indigo-400 font-medium">{postCount} articles</span>
+        <span className="text-xs text-indigo-600 dark:text-indigo-400 font-medium">
+          {postCount} {postCount === 1 ? 'article' : 'articles'}
+        </span>
       </div>
     </Link>
   );

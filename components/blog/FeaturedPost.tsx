@@ -7,6 +7,7 @@ import { FC } from 'react';
 interface FeaturedPostProps {
   id: string;
   title: string;
+  slug: string; // Add slug property for URL routing
   excerpt: string;
   coverImage: string;
   date: string;
@@ -19,8 +20,9 @@ interface FeaturedPostProps {
 }
 
 const FeaturedPost: FC<FeaturedPostProps> = ({
-  id,
+  // id is kept in props but not used directly in the component
   title,
+  slug,
   excerpt,
   coverImage,
   date,
@@ -50,7 +52,7 @@ const FeaturedPost: FC<FeaturedPostProps> = ({
           </Link>
           <span className="text-sm text-gray-500 dark:text-gray-400">{readTime}</span>
         </div>
-        <Link href={`/blog/${id}`} className="block">
+        <Link href={`/blog/${slug}`} className="block">
           <h2 className="text-2xl md:text-3xl font-bold mb-4 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">
             {title}
           </h2>
