@@ -3,7 +3,7 @@
 import { FC, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { supabase } from '../../lib/supabase/client';
+import { getSupabase } from '../../lib/supabase/client';
 
 interface MobileMenuProps {
   isOpen: boolean;
@@ -14,7 +14,8 @@ const MobileMenu: FC<MobileMenuProps> = ({ isOpen, onClose }) => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const router = useRouter();
   
-  // Using the singleton Supabase client imported from lib/supabase/client
+  // Initialize Supabase client
+  const supabase = getSupabase();
   
   useEffect(() => {
     // Check if user is logged in

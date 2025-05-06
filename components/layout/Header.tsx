@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { FC, useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { supabase } from '../../lib/supabase/client';
+import { getSupabase } from '../../lib/supabase/client';
 import ThemeToggle from '../common/ThemeToggle';
 import SearchBar from '../common/SearchBar';
 import MobileMenu from './MobileMenu';
@@ -13,7 +13,8 @@ const Header: FC = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const router = useRouter();
   
-  // Using the singleton Supabase client imported from lib/supabase/client
+  // Initialize Supabase client
+  const supabase = getSupabase();
   
   useEffect(() => {
     // Check if user is logged in

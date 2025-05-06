@@ -5,24 +5,40 @@ import { Database } from './database.types';
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
 
-// Create a more robust singleton pattern for the Supabase client
-// that works properly in both server and client environments
-let supabaseInstance: ReturnType<typeof createClient<Database>>;
-
-// This approach prevents multiple instances in browser environments
-export const getSupabase = () => {
-  if (typeof window === 'undefined') {
-    // Server-side: Always create a new instance (won't be shared between requests)
-    return createClient<Database>(supabaseUrl, supabaseAnonKey);
+// Define the client options with a consistent storage key
+const clientOptions = {
+  auth: {
+    storageKey: 'blog-platform-auth',
+    persistSession: true,
+    autoRefreshToken: true
   }
-  
-  // Client-side: Create the instance once and reuse it
-  if (!supabaseInstance) {
-    supabaseInstance = createClient<Database>(supabaseUrl, supabaseAnonKey);
-  }
-  
-  return supabaseInstance;
 };
 
-// For backward compatibility and simpler imports
-export const supabase = getSupabase();
+// For client-side usage (true singleton pattern)
+let browserInstance: ReturnType<typeof createClient<Database>> | null = null;
+
+/**
+ * Returns a Supabase client for use in the browser.
+ * Ensures only one instance is created in the browser context.
+ */
+export const getSupabase = () => {
+  if (typeof window === 'undefined') {
+    // Server-side: Always create a fresh instance for each request
+    return createClient<Database>(supabaseUrl, supabaseAnonKey, clientOptions);
+  }
+
+  // Client-side: Use singleton pattern to ensure only one instance exists
+  if (!browserInstance) {
+    browserInstance = createClient<Database>(supabaseUrl, supabaseAnonKey, clientOptions);
+  }
+
+  return browserInstance;
+};
+
+/**
+ * Creates a new Supabase client specifically for server components.
+ * This should be used in server components that need to access Supabase.
+ */
+export const createServerSupabaseClient = () => {
+  return createClient<Database>(supabaseUrl, supabaseAnonKey, clientOptions);
+};

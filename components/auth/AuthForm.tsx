@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { z } from "zod";
-import { supabase } from "../../lib/supabase/client";
+import { getSupabase } from "../../lib/supabase/client";
 
 // Define form schemas using Zod
 const loginSchema = z.object({
@@ -48,6 +48,8 @@ type AuthFormProps = {
 
 export default function AuthForm({ type }: AuthFormProps) {
   const router = useRouter();
+  // Initialize Supabase client
+  const [supabase] = useState(() => getSupabase()); // Use useState to initialize Supabase
   // We always redirect to the admin dashboard after login
 
   // Form state
@@ -154,12 +156,12 @@ export default function AuthForm({ type }: AuthFormProps) {
           user_metadata: user?.user_metadata,
         });
 
-        // Redirect to admin dashboard after successful login
-        console.log("Redirecting to dashboard...");
+        // Redirect to homepage after successful login
+        console.log("Login successful, redirecting to homepage...");
         
         // Use window.location for a hard redirect instead of the Next.js router
         // This ensures a complete page refresh and proper session handling
-        window.location.href = '/admin/dashboard';
+        window.location.href = '/';
       } else if (type === "register") {
         // Handle registration
         const { data: signUpData, error } = await supabase.auth.signUp({
@@ -365,6 +367,7 @@ export default function AuthForm({ type }: AuthFormProps) {
                   : "border-gray-300 dark:border-gray-600"
               }`}
               placeholder="your.email@example.com"
+              autoComplete="username"
             />
             {errors.email && (
               <p className="mt-1 text-sm text-red-600">{errors.email}</p>
@@ -393,6 +396,7 @@ export default function AuthForm({ type }: AuthFormProps) {
                   : "border-gray-300 dark:border-gray-600"
               }`}
               placeholder="Enter your password"
+              autoComplete={type === "login" ? "current-password" : "new-password"}
             />
             {errors.password && (
               <p className="mt-1 text-sm text-red-600">{errors.password}</p>
@@ -421,6 +425,7 @@ export default function AuthForm({ type }: AuthFormProps) {
                   : "border-gray-300 dark:border-gray-600"
               }`}
               placeholder="Enter your password"
+              autoComplete="new-password"
             />
             {errors.confirmPassword && (
               <p className="mt-1 text-sm text-red-600">
