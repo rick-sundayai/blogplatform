@@ -56,53 +56,14 @@ export async function middleware(request: NextRequest) {
   );
 
   // Refresh session if expired
-  const { data: { session } } = await supabase.auth.getSession();
-
-  // Check if the request is for an admin route or auth route
-  const isAdminRoute = request.nextUrl.pathname.startsWith('/admin');
-  const isAuthRoute = request.nextUrl.pathname.startsWith('/auth');
-  
-  // Skip auth routes - we don't want to redirect away from login pages
-  if (isAuthRoute) {
-    return response;
-  }
-
-  // If it's an admin route and the user is not authenticated, redirect to login
-  if (isAdminRoute && !session) {
-    const redirectUrl = new URL('/auth/login', request.url);
-    redirectUrl.searchParams.set('callbackUrl', request.nextUrl.pathname);
-    return NextResponse.redirect(redirectUrl);
-  }
-
-  // If user is authenticated and accessing admin routes, check if they have admin role
-  if (isAdminRoute && session) {
-    try {
-      const { data: userRole } = await supabase
-        .from('user_roles')
-        .select('role')
-        .eq('user_id', session.user.id)
-        .single();
-
-      const isAdmin = userRole?.role === 'admin';
-
-      // If not admin, redirect to homepage
-      if (!isAdmin) {
-        return NextResponse.redirect(new URL('/', request.url));
-      }
-    } catch (error) {
-      console.error('Error checking admin role:', error);
-      // If there's an error checking the role, redirect to homepage
-      return NextResponse.redirect(new URL('/', request.url));
-    }
-  }
+  await supabase.auth.getSession();
 
   return response;
 }
 
-// Configure middleware to run on specific routes
+// Only run middleware on auth-related routes
 export const config = {
   matcher: [
-    // Apply to all routes except static files
     '/((?!_next/static|_next/image|favicon.ico|.*\.svg).*)',
   ],
 };

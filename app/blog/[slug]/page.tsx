@@ -35,7 +35,7 @@ export async function generateMetadata({
 }: { 
   params: { slug: string } 
 }): Promise<Metadata> {
-  // In Next.js 14+, we need to await the params object before accessing its properties
+  // Ensure params is properly awaited
   const resolvedParams = await params;
   const post = await getPostBySlug(resolvedParams.slug);
   
@@ -114,7 +114,7 @@ export default async function BlogPost({
 }: { 
   params: { slug: string } 
 }) {
-  // In Next.js 14+, we need to await the params object before accessing its properties
+  // Ensure params is properly awaited
   const resolvedParams = await params;
   const post = await getPostBySlug(resolvedParams.slug);
   
@@ -179,6 +179,7 @@ export default async function BlogPost({
                   alt={authors.name}
                   fill
                   className="object-cover"
+                  sizes="48px" // Fixed size for avatar (12 * 12 = 48px)
                 />
               </div>
               <div>

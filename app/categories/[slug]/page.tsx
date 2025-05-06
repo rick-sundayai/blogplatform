@@ -55,7 +55,7 @@ export async function generateMetadata({
 }: { 
   params: { slug: string } 
 }): Promise<Metadata> {
-  // In Next.js 14+, we need to await the params object before accessing its properties
+  // Ensure params is properly awaited
   const resolvedParams = await params;
   const category = await getCategoryBySlug(resolvedParams.slug);
   
@@ -101,11 +101,14 @@ export default async function CategoryPage({
 }: { 
   params: { slug: string } 
 }) {
-  // In Next.js 14+, we need to await the params object before accessing its properties
+  // Ensure params is properly awaited
   const resolvedParams = await params;
   
   // Fetch the category
   const category: Category | null = await getCategoryBySlug(resolvedParams.slug);
+  
+  // Fallback image in case the category image is broken
+  const fallbackImage = 'https://images.unsplash.com/photo-1518770660439-4636190af475?q=80&w=800&auto=format&fit=crop';
   
   // If the category doesn't exist, show a 404 page
   if (!category) {
@@ -127,11 +130,12 @@ export default async function CategoryPage({
       <section className="mb-16">
         <div className="relative h-64 md:h-80 w-full rounded-lg overflow-hidden mb-8">
           <Image
-            src={category.image}
+            src={category.image || fallbackImage}
             alt={category.name}
             fill
             className="object-cover"
             priority
+            unoptimized // Allow client-side fallback handling
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent flex items-end">
             <div className="p-6 md:p-8 w-full">

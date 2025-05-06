@@ -67,7 +67,7 @@ const PostCard: FC<PostCardProps> = ({
                 alt={author.name}
                 fill
                 className="object-cover"
-                sizes="32px"
+                sizes="32px" // Fixed size for avatar (8 * 8 = 32px)
               />
             </div>
             <span className="text-sm font-medium">{author.name}</span>

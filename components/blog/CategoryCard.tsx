@@ -2,7 +2,7 @@
 
 import Image from 'next/image';
 import Link from 'next/link';
-import { FC } from 'react';
+import { FC, useState } from 'react';
 
 interface CategoryCardProps {
   name: string;
@@ -19,6 +19,15 @@ const CategoryCard: FC<CategoryCardProps> = ({
   postCount,
   image,
 }) => {
+  const [imgSrc, setImgSrc] = useState(image);
+  
+  // Fallback image in case the original image fails to load
+  const fallbackImage = 'https://images.unsplash.com/photo-1518770660439-4636190af475?q=80&w=800&auto=format&fit=crop';
+  
+  // Handle image load error
+  const handleImageError = () => {
+    setImgSrc(fallbackImage);
+  };
   return (
     <Link 
       href={`/categories/${slug}`}
@@ -26,11 +35,12 @@ const CategoryCard: FC<CategoryCardProps> = ({
     >
       <div className="relative h-36 w-full">
         <Image
-          src={image}
+          src={imgSrc}
           alt={name}
           fill
           className="object-cover"
           sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+          onError={handleImageError}
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent flex items-end p-4">
           <h3 className="text-white text-xl font-bold">{name}</h3>

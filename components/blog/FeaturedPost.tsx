@@ -66,7 +66,7 @@ const FeaturedPost: FC<FeaturedPostProps> = ({
                 alt={author.name}
                 fill
                 className="object-cover"
-                sizes="40px"
+                sizes="40px" // Fixed size for avatar (10 * 10 = 40px)
               />
             </div>
             <span className="font-medium">{author.name}</span>
