@@ -1,8 +1,10 @@
 'use client';
 
 import { FC, useState } from 'react';
+import { useRouter } from 'next/navigation';
 
 const SearchBar: FC = () => {
+  const router = useRouter();
   const [searchQuery, setSearchQuery] = useState('');
   const [isSearching, setIsSearching] = useState(false);
 
@@ -11,10 +13,8 @@ const SearchBar: FC = () => {
     if (!searchQuery.trim()) return;
     
     setIsSearching(true);
-    // This would be replaced with actual search functionality using Supabase
-    await new Promise(resolve => setTimeout(resolve, 500));
-    // Navigate to search results page
-    window.location.href = `/search?q=${encodeURIComponent(searchQuery)}`;
+    // Navigate to search results page using Next.js router
+    router.push(`/search?q=${encodeURIComponent(searchQuery.trim())}`);
     setIsSearching(false);
   };
 
